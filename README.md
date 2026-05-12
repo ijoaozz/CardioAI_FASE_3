@@ -1,5 +1,9 @@
 # FIAP — Faculdade de Informática e Administração Paulista
 
+<p align="center">
+  <img src="assets/logo-fiap.png" alt="FIAP Logo" width="40%">
+</p>
+
 <h1 align="center">💓 CardioIA Conectada</h1>
 <h3 align="center">Monitoramento Contínuo de Sinais Vitais com IoT, Edge Computing e Visualização em Nuvem</h3>
 
@@ -208,30 +212,34 @@ O InfluxDB armazena os dados como séries temporais com timestamps automáticos.
 ```text
 CardioIA/
 │
-├── Parte_1/                          # Edge Computing — ESP32 + Sensores
+├── Parte_1/
 │   ├── src/
-│   │   └── prog1.ino                 # Código C++ comentado (DHT22 + PIR + Buffer FIFO)
-│   ├── diagram.json                  # Circuito Wokwi (ESP32 + DHT22 + PIR)
-│   ├── platformio.ini                # Configuração PlatformIO
-│   └── wokwi.toml                    # Configuração do simulador Wokwi
+│   │   └── prog1.ino
+│   ├── assets/
+│   │   └── simulacao.png
+│   ├── diagram.json
+│   ├── platformio.ini
+│   └── wokwi.toml
 │
-├── Parte_2/                          # Fog/Cloud — MQTT + Node-RED + InfluxDB + Grafana
+├── Parte_2/
 │   ├── src/
-│   │   └── prog1.ino                 # Código C++ comentado (DHT22 + Botão BPM + MQTT)
-│   ├── diagram.json                  # Circuito Wokwi (ESP32 + DHT22 + Botão + LED)
-│   ├── platformio.ini                # Configuração PlatformIO
-│   └── wokwi.toml                    # Configuração do simulador Wokwi
+│   │   └── prog1.ino
+│   ├── assets/
+│   │   ├── dashboard_batimento_alert.png
+│   │   ├── dashboard_batimento_sucess.png
+│   │   ├── dashboard_temperatura_alert.png
+│   │   ├── dashboard_temperatura_sucess.png
+│   │   ├── grafana.png
+│   │   ├── imagem_node_red.png
+│   │   ├── influxdb.png
+│   │   ├── mosquito-mqtt.png
+│   │   ├── validacao_batimentos.png
+│   │   └── validacao_temperatura.png
+│   ├── diagram.json
+│   ├── platformio.ini
+│   └── wokwi.toml
 │
-├── assets/
-│   ├── dashboard_batimento_alert.png     # Dashboard Node-RED — alerta de taquicardia
-│   ├── dashboard_batimento_sucess.png    # Dashboard Node-RED — BPM normal
-│   ├── dashboard_temperatura_alert.png   # Dashboard Node-RED — alerta de febre
-│   ├── dashboard_temperatura_sucess.png  # Dashboard Node-RED — temperatura normal
-│   ├── grafana.png                       # Painel Grafana com dados históricos
-│   ├── influxdb.png                      # Interface InfluxDB com séries temporais
-│   └── imagem_node_red.png               # Fluxo Node-RED (blocos conectados)
-│
-├── relatorio_cardioIA_fase3.docx     # Relatório acadêmico completo (Word)
+├── relatorio_cardioIA_fase3.docx
 ├── README.md
 └── .gitignore
 ```
@@ -246,6 +254,12 @@ CardioIA/
 |---|---|---|---|
 | DHT22 | GPIO 15 | Temperatura (°C) + Umidade (%) | 5 segundos |
 | PIR | GPIO 4 | Movimento (boolean) | 5 segundos |
+
+### Simulação do circuito
+
+<p align="center">
+  <img src="Parte_1/assets/simulação.png" alt="Circuito ESP32 com DHT22 e PIR no Wokwi" width="85%">
+</p>
 
 ### Payload JSON gerado
 
@@ -298,13 +312,27 @@ BPM = número de pressões do botão × 6
 
 | Parâmetro | Valor |
 |---|---|
-| Broker | Mosquitto (local) |
+| Broker | Mosquitto (Docker local) |
 | Porta | 1883 |
 | Client ID | `esp32-fiap-01` |
 | Tópico temperatura | `sensor/temperatura` |
 | Tópico batimentos | `sensor/batimentos` |
 | Biblioteca | PubSubClient |
 | Reconexão automática | Sim (`reconnect_mqtt()`) |
+
+Containers Docker com todos os serviços ativos (Mosquitto, Node-RED, InfluxDB e Grafana):
+
+<p align="center">
+  <img src="Parte_2/assets/mosquito-mqtt.png" alt="Containers Docker rodando" width="90%">
+</p>
+
+### Fluxo Node-RED
+
+O fluxo abaixo mostra a integração entre os tópicos MQTT, as regras de alerta e a persistência no InfluxDB:
+
+<p align="center">
+  <img src="Parte_2/assets/imagem_node_red.png" alt="Fluxo Node-RED com blocos MQTT, regras e dashboard" width="90%">
+</p>
 
 ### Regras de alerta no Node-RED
 
@@ -313,13 +341,51 @@ BPM = número de pressões do botão × 6
 | Taquicardia | BPM > 120 | Alerta vermelho no dashboard |
 | Febre | Temperatura > 38°C | Alerta vermelho no dashboard |
 
-### Componentes do dashboard Node-RED
+### Validação dos dados recebidos
 
-| Componente | Dado exibido |
-|---|---|
-| **Chart (gráfico de linha)** | Variação de BPM ao longo do tempo em tempo real |
-| **Gauge (medidor)** | Temperatura atual (escala 0–50°C) |
-| **Indicador de alerta** | Texto e cor mudam quando threshold é ultrapassado |
+Confirmação do recebimento correto dos dados de temperatura e batimentos no Node-RED:
+
+<p align="center">
+  <img src="Parte_2/assets/validacao_temperatura.png" alt="Validação do dado de temperatura no Node-RED" width="48%">
+  &nbsp;
+  <img src="Parte_2/assets/validacao_batimentos.png" alt="Validação do dado de batimentos no Node-RED" width="48%">
+</p>
+
+### Dashboard Node-RED — Temperatura
+
+Temperatura dentro do limite normal e com alerta de febre ativo (> 38°C):
+
+<p align="center">
+  <img src="Parte_2/assets/dashboard_temperatura_sucess.png" alt="Dashboard temperatura normal" width="48%">
+  &nbsp;
+  <img src="Parte_2/assets/dashboard_temperatura_alert.png" alt="Dashboard alerta de febre" width="48%">
+</p>
+
+### Dashboard Node-RED — Batimentos Cardíacos (BPM)
+
+BPM dentro do limite normal e com alerta de taquicardia ativo (> 120 BPM):
+
+<p align="center">
+  <img src="Parte_2/assets/dashboard_batimento_sucess.png" alt="Dashboard BPM normal" width="48%">
+  &nbsp;
+  <img src="Parte_2/assets/dashboard_batimento_alert.png" alt="Dashboard alerta de taquicardia" width="48%">
+</p>
+
+### InfluxDB — Armazenamento de Séries Temporais
+
+Dados de temperatura e batimentos armazenados com timestamps no InfluxDB:
+
+<p align="center">
+  <img src="Parte_2/assets/influxdb.png" alt="Interface InfluxDB com séries temporais" width="90%">
+</p>
+
+### Grafana — Visualização Avançada
+
+Dashboards históricos gerados pelo Grafana a partir dos dados armazenados no InfluxDB:
+
+<p align="center">
+  <img src="Parte_2/assets/grafana.png" alt="Painel Grafana com gráficos históricos de sinais vitais" width="90%">
+</p>
 
 ---
 
