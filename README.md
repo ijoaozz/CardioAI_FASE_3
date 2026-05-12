@@ -1,190 +1,458 @@
-# 🌾 Projeto Cap 1 - CardioIA Conectada: IoT e Visualização de Dados para a Saúde Digital
+# FIAP — Faculdade de Informática e Administração Paulista
+
+<h1 align="center">💓 CardioIA Conectada</h1>
+<h3 align="center">Monitoramento Contínuo de Sinais Vitais com IoT, Edge Computing e Visualização em Nuvem</h3>
+
+<p align="center">
+  <em>"Capturando cada batimento, processando na borda, visualizando na nuvem — em tempo real."</em>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/FIAP-Fase_3_CardioIA-ed145b?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Disciplina-IoT_%26_Health-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Status-Entregue-green?style=for-the-badge">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/ESP32-Wokwi_Simulator-informational?style=flat-square&logo=espressif">
+  <img src="https://img.shields.io/badge/Protocolo-MQTT-orange?style=flat-square">
+  <img src="https://img.shields.io/badge/Dashboard-Node--RED-red?style=flat-square">
+  <img src="https://img.shields.io/badge/TimeSeries-InfluxDB-blue?style=flat-square">
+  <img src="https://img.shields.io/badge/Visualização-Grafana-orange?style=flat-square">
+  <img src="https://img.shields.io/badge/Arquitetura-Edge_%7C_Fog_%7C_Cloud-success?style=flat-square">
+</p>
 
 ---
 
-## 👨‍🎓 Integrantes
+## 📌 Visão Geral
 
-| Nome Completo                   | RM       |
-| ------------------------------- | -------- |
-| Daniele Antonieta Garisto Dias  | RM565106 |
-| Leandro Augusto Jardim da Cunha | RM561395 |
-| Luiz Eduardo da Silva           | RM561701 |
-| João Victor Viana de Sousa      | RM565136 |
+O **CardioIA Conectada** é um protótipo funcional de sistema vestível de monitoramento cardíaco, desenvolvido como entrega da Fase 3 do projeto CardioIA no curso de Inteligência Artificial da FIAP. O projeto demonstra, de forma prática e técnica, o ciclo completo de um sistema IoT aplicado à saúde digital: **captura → processamento → transmissão → visualização → alerta**.
+
+A solução não é apenas uma leitura de sensores. O CardioIA propõe uma arquitetura distribuída em três camadas — Edge, Fog e Cloud — onde cada nível tem responsabilidades claras e bem definidas. O ESP32 atua como dispositivo de borda inteligente, capaz de coletar dados, aplicar lógica local e garantir resiliência offline. O Node-RED funciona como camada de fog, roteando dados, aplicando regras de negócio e exibindo dashboards em tempo real. O InfluxDB e o Grafana formam a camada de nuvem, responsável pelo armazenamento histórico e pela visualização avançada de séries temporais.
+
+> ⚠️ **Aviso:** este projeto é uma proposta acadêmica e não deve ser utilizado como dispositivo médico real. O monitoramento clínico de pacientes exige equipamentos certificados e supervisão de profissionais de saúde habilitados.
 
 ---
 
-## PARTE 1 – Armazenamento e Processamento Local (Edge Computing)
+## 🌍 Por que isto importa
 
-### 1.1 Visão Geral
+O mercado global de dispositivos IoT para saúde (IoMT — Internet of Medical Things) ultrapassa **US$ 180 bilhões** e cresce a taxas superiores a 25% ao ano. Wearables cardíacos, oxímetros conectados e monitores de pressão inteligentes já fazem parte da rotina de milhões de pacientes ao redor do mundo.
 
-A Parte 1 do projeto consiste em uma aplicação desenvolvida no simulador Wokwi utilizando o microcontrolador ESP32. O objetivo é demonstrar os princípios de Edge Computing aplicados à saúde digital, onde o dispositivo realiza coleta, processamento local e gerenciamento de resiliência offline de dados de sinais vitais.
+O desafio central não está nos sensores — está na infraestrutura de dados. A maioria dos dispositivos captura sinais vitais, mas falha em três pontos críticos: **resiliência offline** (o que acontece quando a conexão cai?), **latência de alerta** (quanto tempo leva para o profissional de saúde ser notificado?) e **rastreabilidade histórica** (onde ficam os dados coletados ao longo do tempo?).
 
-### 1.2 Sensores Utilizados
+O CardioIA Conectada aborda exatamente esses três pontos, demonstrando que é possível construir uma solução robusta, escalável e aplicável em contextos reais de saúde digital — com tecnologias acessíveis, open source e bem documentadas.
 
-Foram empregados dois sensores distintos no projeto:
+---
 
-**Sensor 1 – DHT22 (Temperatura e Umidade)**
-Conectado ao pino GPIO 15, o DHT22 é responsável pela leitura periódica de temperatura (°C) e umidade relativa do ar (%). Por se tratar de um sensor dual, é contabilizado como um único sensor conforme especificação do enunciado. As leituras são validadas com a função `isnan()` para garantir a integridade dos dados antes de qualquer processamento.
+## 🎯 Objetivo da Fase 3
 
-**Sensor 2 – PIR (Sensor de Movimento)**
-Conectado ao pino GPIO 4, o sensor PIR detecta presença no ambiente. No contexto do CardioIA, representa a detecção de movimento do paciente monitorado, sendo um parâmetro relevante em cenários de queda ou imobilidade prolongada.
+A Fase 3 tem como foco a **integração completa das camadas de IoT**, desde a captura de sinais vitais simulados até a visualização em dashboards com alertas automáticos.
 
-### 1.3 Fluxo de Funcionamento
+### Entregas desta fase
 
-O sistema opera em ciclos de leitura a cada 5 segundos, controlados por temporização não bloqueante (`millis()`). A cada ciclo:
+- Simulação de sensores no Wokwi com ESP32 (DHT22 + PIR / DHT22 + Botão)
+- Implementação de resiliência offline com buffer FIFO local (Edge Computing)
+- Transmissão de dados via protocolo MQTT para broker Mosquitto
+- Dashboard em tempo real no Node-RED com gráficos, gauge e alertas
+- Integração com InfluxDB para armazenamento de séries temporais
+- Visualização avançada no Grafana Cloud
+- Documentação técnica completa (código comentado + relatório)
 
-1. O ESP32 lê temperatura, umidade e estado do sensor PIR.
-2. Os dados são serializados em formato JSON utilizando a biblioteca ArduinoJson.
-3. O sistema verifica o estado de conectividade (variável booleana `isOnline`).
-4. Dependendo do estado de conexão, os dados são enviados ou armazenados localmente.
+---
 
-O payload gerado segue o seguinte formato JSON:
+## 🧩 Problema de Negócio
+
+O monitoramento cardíaco contínuo de pacientes enfrenta cinco desafios estruturais que o CardioIA se propõe a endereçar:
+
+**1. Dependência total de conectividade**
+A maioria dos sistemas IoT de saúde assume conectividade permanente. Quando a rede falha — seja por queda de Wi-Fi, interferência eletromagnética em ambientes hospitalares ou troca de ala — os dados são perdidos. O CardioIA resolve isso com um buffer local no próprio dispositivo.
+
+**2. Latência de alerta**
+Em cenários críticos como taquicardia (BPM > 120) ou febre (temperatura > 38°C), cada segundo conta. Sistemas que dependem da nuvem para gerar alertas têm latência inaceitável. O CardioIA processa regras de alerta localmente no ESP32, sem depender de conexão.
+
+**3. Ausência de rastreabilidade histórica**
+Dados de sinais vitais têm valor clínico acumulado ao longo do tempo. Um pico de temperatura isolado é menos relevante do que a tendência de três dias. O CardioIA armazena séries temporais no InfluxDB, permitindo análise histórica completa.
+
+**4. Falta de visibilidade operacional em tempo real**
+Profissionais de saúde precisam de dashboards claros, com indicadores visuais e alertas contextuais — não de logs brutos. O Node-RED e o Grafana entregam essa camada de observabilidade.
+
+**5. Complexidade de integração entre camadas**
+Edge, Fog e Cloud são conceitos bem definidos na literatura, mas raramente demonstrados de forma integrada em protótipos funcionais. O CardioIA implementa essa arquitetura completa de ponta a ponta.
+
+---
+
+## 💼 Valor para o Negócio
+
+| Stakeholder | Dor atual | Valor entregue pelo CardioIA |
+|---|---|---|
+| **Paciente monitorado** | Dispositivos perdem dados quando há queda de conexão | Resiliência offline garante continuidade da coleta sem perda de registros |
+| **Profissional de saúde** | Alertas lentos ou ausentes em situações críticas | Alertas automáticos em tempo real via dashboard com thresholds configuráveis |
+| **Equipe de TI hospitalar** | Infraestrutura complexa e cara para IoT médico | Stack open source (Mosquitto, Node-RED, InfluxDB, Grafana) de fácil manutenção |
+| **Gestão hospitalar** | Sem visibilidade histórica dos sinais vitais coletados | Séries temporais armazenadas no InfluxDB com dashboards Grafana para análise |
+| **Desenvolvedores e pesquisadores** | Falta de referência técnica para IoT em saúde | Arquitetura documentada, código comentado e fluxo completo demonstrado |
+
+---
+
+## 💡 Solução Proposta
+
+O CardioIA Conectada implementa um pipeline de IoT composto por quatro camadas funcionais integradas:
+
+### Camada 1 — Captura de Sinais Vitais (Edge Device)
+
+O ESP32, simulado no Wokwi, coleta dados dos sensores a cada intervalo configurado. O DHT22 fornece temperatura e umidade. O sensor PIR detecta presença e movimento. O botão simula batimentos cardíacos (BPM). Todos os dados são serializados em JSON e prontos para transmissão ou armazenamento local.
+
+### Camada 2 — Processamento Local e Resiliência (Edge Computing)
+
+Antes de qualquer transmissão, o ESP32 aplica lógica local: valida leituras, aplica regras de alerta (febre, presença) e gerencia o buffer offline. Com política FIFO de até 20 amostras, o sistema garante continuidade da coleta mesmo sem conexão, sincronizando automaticamente quando a rede é restabelecida.
+
+### Camada 3 — Transmissão e Roteamento (Fog Computing)
+
+Os dados são publicados via MQTT no broker Mosquitto. O Node-RED subscreve os tópicos, parseia os payloads JSON, aplica regras de negócio (alertas de taquicardia e febre) e exibe os dados em dashboards interativos em tempo real. O Node-RED também encaminha os dados para o InfluxDB.
+
+### Camada 4 — Armazenamento Histórico e Visualização (Cloud)
+
+O InfluxDB armazena os dados como séries temporais com timestamps automáticos. O Grafana consome essa base e entrega dashboards avançados com gráficos históricos, painéis de tendência e alertas persistentes configuráveis.
+
+---
+
+## 🏗️ Arquitetura da Solução
+
+### Fluxo Técnico Completo
+
+```
+1.  Coleta de dados (DHT22 + PIR / Botão)    →  Leitura periódica no ESP32
+2.  Validação local da leitura               →  isnan() para integridade dos dados
+3.  Serialização em JSON                     →  ArduinoJson
+4.  Verificação de conectividade             →  Variável booleana / WiFi.status()
+5.  Decisão: online ou offline               →  Condicional no loop()
+6.  [Offline] Armazenamento em buffer FIFO   →  Array local, até 20 amostras
+7.  [Online] Sincronização do buffer         →  syncData() ao restabelecer conexão
+8.  Publicação via MQTT                      →  PubSubClient → Mosquitto Broker
+9.  Recepção no Node-RED                     →  Subscribe nos tópicos MQTT
+10. Parse e roteamento                       →  Extração dos campos JSON
+11. Aplicação de regras de alerta            →  BPM > 120 / Temp > 38°C
+12. Exibição no dashboard                    →  Chart, Gauge, Alerta visual
+13. Persistência no InfluxDB                 →  Séries temporais com timestamp
+14. Visualização no Grafana                  →  Dashboards históricos e tendências
+```
+
+### Stack Tecnológico
+
+| Camada | Tecnologia | Justificativa |
+|---|---|---|
+| **Microcontrolador** | ESP32 (Wokwi) | Plataforma IoT amplamente adotada, Wi-Fi integrado, suporte a C++ |
+| **Sensor de temperatura/umidade** | DHT22 | Precisão adequada para monitoramento clínico básico |
+| **Sensor de movimento** | PIR | Detecção de presença/queda sem contato físico |
+| **Simulação de BPM** | Botão + contagem temporal | Simula frequência cardíaca sem sensor físico dedicado |
+| **Serialização** | ArduinoJson | Biblioteca leve e eficiente para JSON no ESP32 |
+| **Protocolo de comunicação** | MQTT (PubSubClient) | Baixo overhead, publish/subscribe, ideal para IoT |
+| **Broker MQTT** | Mosquitto | Open source, leve, amplamente adotado em produção |
+| **Camada de fog** | Node-RED | Orquestração visual de fluxos, dashboard integrado |
+| **Banco de séries temporais** | InfluxDB | Otimizado para dados temporais de alta frequência |
+| **Visualização avançada** | Grafana | Dashboards customizáveis, alertas, consultas Flux |
+| **Simulador** | Wokwi (VS Code + PlatformIO) | Simulação fiel do ESP32 sem necessidade de hardware físico |
+
+### Diagrama de Arquitetura
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        EDGE LAYER                               │
+│                                                                 │
+│   ┌──────────┐    ┌──────────┐    ┌──────────┐                  │
+│   │  DHT22   │    │   PIR    │    │  Botão   │                  │
+│   │ Temp/Umi │    │Movimento │    │   BPM    │                  │
+│   └────┬─────┘    └────┬─────┘    └────┬─────┘                  │
+│        └───────────────┴───────────────┘                        │
+│                         │                                       │
+│                    ┌────▼─────┐                                 │
+│                    │  ESP32   │  ← Lógica local + Buffer FIFO   │
+│                    │ (Wokwi)  │  ← Alertas offline              │
+│                    └────┬─────┘                                 │
+└─────────────────────────┼───────────────────────────────────────┘
+                          │ MQTT (PubSubClient)
+                          │ sensor/temperatura
+                          │ sensor/batimentos
+┌─────────────────────────┼───────────────────────────────────────┐
+│                    FOG LAYER                                    │
+│                         │                                       │
+│                    ┌────▼──────┐                                │
+│                    │ Mosquitto │  ← Broker MQTT local           │
+│                    │  Broker   │                                │
+│                    └────┬──────┘                                │
+│                         │                                       │
+│                    ┌────▼──────┐                                │
+│                    │ Node-RED  │  ← Dashboard tempo real        │
+│                    │           │  ← Regras de alerta            │
+│                    └────┬──────┘  ← Gráfico BPM + Gauge Temp    │
+└─────────────────────────┼───────────────────────────────────────┘
+                          │ HTTP / InfluxDB Line Protocol
+┌─────────────────────────┼───────────────────────────────────────┐
+│                   CLOUD LAYER                                   │
+│                         │                                       │
+│              ┌──────────▼──────────┐                            │
+│              │      InfluxDB       │  ← Séries temporais        │
+│              │  (Time Series DB)   │  ← Timestamps automáticos  │
+│              └──────────┬──────────┘                            │
+│                         │ Flux Query                            │
+│              ┌──────────▼──────────┐                            │
+│              │       Grafana       │  ← Dashboards históricos   │
+│              │    (Visualização)   │  ← Alertas persistentes    │
+│              └─────────────────────┘                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📦 Estrutura do Repositório
+
+```text
+CardioIA/
+│
+├── Parte_1/                          # Edge Computing — ESP32 + Sensores
+│   ├── src/
+│   │   └── prog1.ino                 # Código C++ comentado (DHT22 + PIR + Buffer FIFO)
+│   ├── diagram.json                  # Circuito Wokwi (ESP32 + DHT22 + PIR)
+│   ├── platformio.ini                # Configuração PlatformIO
+│   └── wokwi.toml                    # Configuração do simulador Wokwi
+│
+├── Parte_2/                          # Fog/Cloud — MQTT + Node-RED + InfluxDB + Grafana
+│   ├── src/
+│   │   └── prog1.ino                 # Código C++ comentado (DHT22 + Botão BPM + MQTT)
+│   ├── diagram.json                  # Circuito Wokwi (ESP32 + DHT22 + Botão + LED)
+│   ├── platformio.ini                # Configuração PlatformIO
+│   └── wokwi.toml                    # Configuração do simulador Wokwi
+│
+├── assets/
+│   ├── dashboard_batimento_alert.png     # Dashboard Node-RED — alerta de taquicardia
+│   ├── dashboard_batimento_sucess.png    # Dashboard Node-RED — BPM normal
+│   ├── dashboard_temperatura_alert.png   # Dashboard Node-RED — alerta de febre
+│   ├── dashboard_temperatura_sucess.png  # Dashboard Node-RED — temperatura normal
+│   ├── grafana.png                       # Painel Grafana com dados históricos
+│   ├── influxdb.png                      # Interface InfluxDB com séries temporais
+│   └── imagem_node_red.png               # Fluxo Node-RED (blocos conectados)
+│
+├── relatorio_cardioIA_fase3.docx     # Relatório acadêmico completo (Word)
+├── README.md
+└── .gitignore
+```
+
+---
+
+## 🔁 Parte 1 — Edge Computing (Armazenamento e Processamento Local)
+
+### Sensores utilizados
+
+| Sensor | Pino | Dado coletado | Intervalo |
+|---|---|---|---|
+| DHT22 | GPIO 15 | Temperatura (°C) + Umidade (%) | 5 segundos |
+| PIR | GPIO 4 | Movimento (boolean) | 5 segundos |
+
+### Payload JSON gerado
+
 ```json
-{"temperatura": 36.5, "umidade": 62.0, "movimento": false}
+{
+  "temperatura": 36.5,
+  "umidade": 62.0,
+  "movimento": false
+}
 ```
 
-### 1.4 Lógica de Resiliência Offline (Edge Computing)
+### Lógica de resiliência offline
 
-A resiliência offline é implementada por meio de um buffer local em memória RAM do ESP32, com capacidade para armazenar até **20 leituras** (estratégia definida conforme o modelo de negócio do projeto).
+| Situação | Comportamento |
+|---|---|
+| **Online** | Dados publicados via Serial (simulação de envio) e buffer sincronizado |
+| **Offline** | Dados armazenados no buffer local (máx. 20 amostras, política FIFO) |
+| **Reconexão** | `syncData()` envia todos os registros pendentes e limpa o buffer |
+| **Buffer cheio** | FIFO descarta leitura mais antiga, mantém as 20 mais recentes |
 
-**Funcionamento do Buffer:**
-- Quando o sistema está **offline**, cada nova leitura é salva no array `buffer[]` por meio da função `saveLocal()`.
-- Quando o buffer atinge sua capacidade máxima, é aplicada uma política **FIFO** (First In, First Out): a leitura mais antiga é descartada e a mais recente ocupa o último slot. Isso garante que o ESP32 sempre mantenha os dados mais atualizados mesmo com espaço limitado.
-- Quando a conexão é **restabelecida**, a função `syncData()` percorre todos os registros armazenados, exibe-os no Monitor Serial (simulando o envio para a nuvem) e limpa o buffer.
+> **Capacidade do buffer:** 20 amostras × 5 segundos = ~1,6 minuto de operação offline sem perda de dados.
 
-**Estratégia de capacidade:**
-20 amostras a cada 5 segundos representam 100 segundos (~1,6 minutos) de operação offline sem perda de dados. Para o contexto de um dispositivo vestível cardíaco hospitalar, essa janela é adequada para cobrir perdas de sinal momentâneas em ambientes com interferência.
+### Regras de alerta local
 
-**Alternativa para SPIFFS:**
-Como o simulador Wokwi não suporta persistência SPIFFS (o sistema de arquivos é volátil ao reiniciar a simulação), o Monitor Serial foi adotado como alternativa de saída, conforme orientação do enunciado. Em um chip ESP32 físico, os dados poderiam ser gravados em arquivo CSV via SPIFFS ou em cartão microSD.
-
-### 1.5 Simulação de Conectividade
-
-A conectividade é simulada de forma automática pela própria lógica do `loop()`: a variável `isOnline` alterna entre `true` e `false` a cada 15 segundos (dentro de um ciclo de 30 segundos usando `millis() % 30000`). Isso permite observar no Monitor Serial o comportamento completo do sistema tanto em modo online quanto offline, sem necessidade de intervenção manual.
-
-### 1.6 Alertas Locais
-
-Além do armazenamento, o sistema implementa regras de alerta processadas localmente:
-
-- **Temperatura > 38°C** → exibe `"⚠️ ALERTA: FEBRE DETECTADA"` no Monitor Serial.
-- **Movimento detectado pelo PIR** → exibe `"⚠️ ALERTA: PRESENÇA DETECTADA"`.
-
-Esses alertas demonstram que o ESP32, como dispositivo de borda, é capaz de executar lógica de negócio sem depender de conexão com a nuvem.
+| Condição | Threshold | Mensagem no Serial |
+|---|---|---|
+| Febre | Temperatura > 38°C | `⚠️ ALERTA: FEBRE DETECTADA` |
+| Presença | PIR = HIGH | `⚠️ ALERTA: PRESENÇA DETECTADA` |
 
 ---
 
-## PARTE 2 – Transmissão para Nuvem e Visualização (Fog/Cloud Computing)
+## 📡 Parte 2 — Fog/Cloud Computing (MQTT + Dashboard + InfluxDB + Grafana)
 
-### 2.1 Visão Geral
+### Sensores utilizados
 
-A Parte 2 integra o ESP32 a uma infraestrutura completa de Fog e Cloud Computing, composta por broker MQTT (Mosquitto local), Node-RED (camada de fog), InfluxDB (banco de dados de séries temporais) e Grafana (visualização). O objetivo é demonstrar o fluxo completo de dados desde a captura no dispositivo até a exibição em dashboards com alertas automáticos.
+| Sensor | Pino | Dado coletado | Tópico MQTT | Intervalo |
+|---|---|---|---|---|
+| DHT22 | GPIO 15 | Temperatura (°C) | `sensor/temperatura` | 10 segundos |
+| Botão | GPIO 22 | BPM (simulado) | `sensor/batimentos` | 10 segundos |
+| LED | GPIO 17 | Feedback visual de batimento | — | Por evento |
 
-### 2.2 Sensores Utilizados
-
-**Sensor 1 – DHT22 (Temperatura)**
-Conectado ao GPIO 15, realiza leitura de temperatura a cada 10 segundos. Os dados são publicados no tópico MQTT `sensor/temperatura` no formato JSON: `{"temperatura": 36.5}`.
-
-**Sensor 2 – Botão (Simulação de Batimentos Cardíacos)**
-Conectado ao GPIO 22 com `INPUT_PULLUP`, o botão simula os batimentos cardíacos do paciente. O usuário pressiona o botão repetidamente para representar batimentos, e o sistema conta os acionamentos ao longo de uma janela de 10 segundos. O cálculo de BPM é feito pela fórmula: `BPM = contagem × 6`. Um LED no GPIO 17 fornece feedback visual a cada batimento detectado. Os dados são publicados no tópico `sensor/batimentos` no formato: `{"bpm": 72}`.
-
-### 2.3 Protocolo MQTT e Configuração do Broker
-
-**MQTT (Message Queuing Telemetry Transport)** é um protocolo de mensageria leve baseado no padrão publish/subscribe, ideal para dispositivos IoT com recursos limitados. Suas principais características para este projeto são:
-
-- **Baixo overhead**: headers pequenos, adequado para ESP32 com memória limitada.
-- **Desacoplamento**: o ESP32 publica dados sem precisar saber quem os consome.
-- **QoS configurável**: garante entrega mesmo em redes instáveis.
-
-**Configuração utilizada:**
-- Broker: Mosquitto rodando localmente (`192.168.0.120:1883`)
-- Client ID: `esp32-fiap-01`
-- Tópicos: `sensor/temperatura` e `sensor/batimentos`
-- Biblioteca: PubSubClient
-
-A função `reconnect_mqtt()` implementa reconexão automática em caso de queda de conexão com o broker, garantindo resiliência na camada de transmissão.
-
-### 2.4 Fluxo Completo de Comunicação
-
-O fluxo de dados segue a arquitetura em três camadas:
+### Cálculo de BPM
 
 ```
-ESP32 → [MQTT] → Mosquitto Broker → Node-RED → InfluxDB → Grafana
+BPM = número de pressões do botão × 6
+(janela de contagem: 10 segundos)
 ```
 
-**Detalhamento de cada etapa:**
+### Configuração MQTT
 
-**1. Edge (ESP32):**
-- Coleta temperatura via DHT22 a cada 10 segundos.
-- Conta batimentos via botão e calcula BPM a cada 10 segundos.
-- Serializa os dados em JSON e publica via MQTT.
+| Parâmetro | Valor |
+|---|---|
+| Broker | Mosquitto (local) |
+| Porta | 1883 |
+| Client ID | `esp32-fiap-01` |
+| Tópico temperatura | `sensor/temperatura` |
+| Tópico batimentos | `sensor/batimentos` |
+| Biblioteca | PubSubClient |
+| Reconexão automática | Sim (`reconnect_mqtt()`) |
 
-**2. Fog (Node-RED):**
-- Subscreve os tópicos MQTT `sensor/temperatura` e `sensor/batimentos`.
-- Faz parse do JSON recebido.
-- Aplica regras de alerta:
-  - Temperatura > 38°C → dispara alerta de febre.
-  - BPM > 120 → dispara alerta de taquicardia.
-- Exibe os dados em tempo real nos dashboards (gráficos de linha, medidores gauge e indicadores de alerta).
-- Encaminha os dados para o InfluxDB via node HTTP/influxdb.
+### Regras de alerta no Node-RED
 
-**3. Cloud (InfluxDB + Grafana):**
-- O InfluxDB armazena os dados como séries temporais, com timestamps automáticos.
-- O Grafana consome os dados do InfluxDB e exibe dashboards interativos com:
-  - Gráfico histórico de temperatura.
-  - Gráfico histórico de BPM.
-  - Indicadores gauge de valores atuais.
-  - Painéis de alerta visual.
+| Condição | Threshold | Ação |
+|---|---|---|
+| Taquicardia | BPM > 120 | Alerta vermelho no dashboard |
+| Febre | Temperatura > 38°C | Alerta vermelho no dashboard |
 
-### 2.5 Dashboard Node-RED
+### Componentes do dashboard Node-RED
 
-O dashboard foi configurado com os seguintes componentes:
-
-- **Gráfico de linha (Chart):** exibe a variação dos batimentos cardíacos (BPM) ao longo do tempo em tempo real.
-- **Medidor (Gauge):** exibe a temperatura atual com escala visual de 0°C a 50°C.
-- **Indicador de alerta:** muda de cor e exibe mensagem quando temperatura > 38°C ou BPM > 120.
-
-As evidências do funcionamento do dashboard estão registradas nas capturas de tela disponíveis na pasta `assets/` do projeto:
-- `dashboard_batimento_alert.png` – alerta de taquicardia ativo.
-- `dashboard_batimento_sucess.png` – batimentos dentro do limite normal.
-- `dashboard_temperatura_alert.png` – alerta de febre ativo.
-- `dashboard_temperatura_sucess.png` – temperatura dentro do limite normal.
-
-### 2.6 Integração com Grafana e InfluxDB
-
-Além do Node-RED, o projeto integra o **Grafana Cloud** com o **InfluxDB** para visualização avançada dos dados históricos. Essa integração permite:
-
-- Consultas com linguagem Flux para análise de tendências.
-- Criação de painéis customizados com múltiplos gráficos e alertas persistentes.
-- Armazenamento de longo prazo dos sinais vitais coletados.
-
-As capturas de tela das interfaces Grafana e InfluxDB estão registradas em `assets/grafana.png`, `assets/influxdb.png` e `assets/imagem_node_red.png`.
+| Componente | Dado exibido |
+|---|---|
+| **Chart (gráfico de linha)** | Variação de BPM ao longo do tempo em tempo real |
+| **Gauge (medidor)** | Temperatura atual (escala 0–50°C) |
+| **Indicador de alerta** | Texto e cor mudam quando threshold é ultrapassado |
 
 ---
 
-## 3. Arquitetura Geral do Sistema
+## 🤖 Estratégia de IoT e Computação Distribuída
 
-O CardioIA Fase 3 implementa uma arquitetura IoT distribuída em três camadas bem definidas:
+### Edge Computing — Por que processar na borda?
 
-| Camada | Tecnologia | Função |
-|--------|-----------|--------|
-| Edge | ESP32 + DHT22 + PIR/Botão | Coleta, processamento local, resiliência offline |
-| Fog | Node-RED + Mosquitto | Roteamento, regras de negócio, dashboard em tempo real |
-| Cloud | InfluxDB + Grafana | Armazenamento histórico, análise e visualização avançada |
+O ESP32 não é apenas um coletor de dados — é um processador de borda inteligente. Ao executar lógica local (validação, alertas, buffer FIFO), o dispositivo garante três propriedades críticas para sistemas médicos:
 
-Essa divisão garante:
-- **Baixa latência**: alertas críticos são processados localmente no ESP32.
-- **Escalabilidade**: novos sensores podem ser adicionados sem alterar a camada de nuvem.
-- **Resiliência**: o sistema continua operando mesmo sem conexão.
-- **Rastreabilidade**: todos os dados ficam persistidos com timestamp no InfluxDB.
+- **Baixa latência:** alertas de febre ou taquicardia são detectados em milissegundos, sem depender de round-trip até a nuvem
+- **Resiliência:** a coleta não para quando a rede cai — os dados são preservados e sincronizados depois
+- **Privacidade:** dados sensíveis podem ser filtrados ou anonimizados localmente antes de qualquer transmissão
 
----
+### Fog Computing — O papel do Node-RED
 
-## 4. Considerações Finais
+O Node-RED atua como camada intermediária entre o dispositivo e a nuvem, executando tarefas que seriam pesadas demais para o ESP32 e desnecessárias para a nuvem: parsing de JSON, roteamento condicional, aplicação de regras de negócio e renderização de dashboards em tempo real.
 
-O projeto demonstrou de forma prática o ciclo completo de um sistema IoT aplicado à saúde digital: **captura → processamento → transmissão → visualização → alerta**. A simulação no Wokwi permitiu validar a lógica do firmware sem necessidade de hardware físico, enquanto o Node-RED, InfluxDB e Grafana formaram uma infraestrutura realista de monitoramento.
+### Cloud Computing — InfluxDB e Grafana
 
-As tecnologias utilizadas — MQTT, Edge Computing com buffer FIFO, séries temporais e dashboards interativos — são amplamente aplicadas em soluções reais de saúde digital, evidenciando a aderência do projeto ao estado da arte do mercado de IoT médico.
+Enquanto o Edge garante a coleta e o Fog garante o fluxo, a nuvem garante a **memória**. O InfluxDB armazena cada leitura com timestamp de nanossegundos, permitindo que o Grafana construa gráficos de tendência, médias móveis e análises históricas que são impossíveis com dados apenas em memória.
 
 ---
 
-*Relatório elaborado para a Fase 3 do projeto CardioIA – FIAP*
+## 🛡️ Boas Práticas em IoT Médico
+
+| Prática | Implementação no CardioIA |
+|---|---|
+| **Validação de dados na origem** | `isnan()` garante que leituras inválidas do DHT22 nunca entram no pipeline |
+| **Resiliência offline** | Buffer FIFO com capacidade dimensionada para o contexto de uso |
+| **Desacoplamento** | MQTT separa produtor (ESP32) de consumidor (Node-RED) — um não depende do outro |
+| **Reconexão automática** | `reconnect_mqtt()` garante que quedas momentâneas não interrompam o monitoramento |
+| **Separação de responsabilidades** | Edge coleta, Fog roteia, Cloud armazena — cada camada tem papel claro |
+| **Alertas baseados em threshold clínico** | Limites de BPM e temperatura definidos com base em referências médicas |
+
+---
+
+## 🚀 Como Executar o Projeto
+
+### Pré-requisitos
+
+- [VS Code](https://code.visualstudio.com/) com extensões **Wokwi** e **PlatformIO**
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) instalado e em execução
+
+### Parte 1 — Wokwi (Edge Computing)
+
+1. Abra a pasta `Parte_1/` no VS Code
+2. Aguarde o PlatformIO compilar o projeto
+3. Clique em **▶ Start Simulation** na extensão Wokwi
+4. Acompanhe as leituras e o comportamento offline/online no terminal
+
+### Parte 2 — MQTT + Node-RED + InfluxDB + Grafana
+
+1. Suba o broker Mosquitto:
+```bash
+docker run -d --name mosquitto -p 1883:1883 eclipse-mosquitto
+```
+
+2. Suba o Node-RED:
+```bash
+docker run -d --name nodered -p 1880:1880 nodered/node-red
+```
+Acesse: [http://localhost:1880](http://localhost:1880) — importe o arquivo `flows.json` via menu ☰ → Import → Deploy
+
+3. Suba o InfluxDB:
+```bash
+docker run -d --name influxdb -p 8086:8086 influxdb:2.0
+```
+Acesse: [http://localhost:8086](http://localhost:8086)
+
+4. Suba o Grafana:
+```bash
+docker run -d --name grafana -p 3000:3000 grafana/grafana
+```
+Acesse: [http://localhost:3000](http://localhost:3000) — login: `admin` / `admin`
+
+5. Descubra o IP local da sua máquina:
+```bash
+ipconfig   # Windows
+ifconfig   # Linux/Mac
+```
+
+6. Atualize o IP do broker no código `Parte_2/src/prog1.ino`:
+```cpp
+const char* mqtt_server = "SEU_IP_AQUI";
+```
+
+7. Abra a pasta `Parte_2/` no VS Code e inicie a simulação Wokwi
+
+8. Acesse o dashboard Node-RED em: [http://localhost:1880/ui](http://localhost:1880/ui)
+
+---
+
+## 👨‍🎓 Integrantes do Grupo
+
+| Nome | RM | Papel |
+|---|---|---|
+| Daniele Antonieta Garisto Dias | RM565106 | Product Owner & Analista de Negócio |
+| Leandro Augusto Jardim da Cunha | RM561395 | Arquiteto de Solução & Engenheiro de Dados |
+| Luiz Eduardo da Silva | RM561701 | Engenheiro de IoT & Firmware |
+| João Victor Viana de Sousa | RM565136 | Especialista em Infraestrutura & Documentação |
+
+### Detalhamento por Integrante
+
+**Daniele Antonieta Garisto Dias — Product Owner & Analista de Negócio**
+Responsável por traduzir os requisitos da Fase 3 em entregas claras e priorizadas. Lidera a definição do problema de negócio, o mapeamento do valor da solução para cada stakeholder e a documentação da jornada do sistema. Garante que as decisões técnicas estejam alinhadas ao contexto de saúde digital e às boas práticas em IoT médico.
+
+**Leandro Augusto Jardim da Cunha — Arquiteto de Solução & Engenheiro de Dados**
+Responsável pelo design técnico da arquitetura distribuída Edge–Fog–Cloud. Define o fluxo de dados de ponta a ponta, as decisões de stack tecnológico e a integração entre Mosquitto, Node-RED, InfluxDB e Grafana. Lidera a modelagem do pipeline de transmissão e o dimensionamento do buffer de resiliência offline.
+
+**Luiz Eduardo da Silva — Engenheiro de IoT & Firmware**
+Responsável pela implementação do firmware do ESP32 nas duas partes do projeto. Desenvolve a lógica de leitura dos sensores, serialização JSON, controle de conectividade, buffer FIFO e publicação MQTT. Garante que o código seja eficiente, comentado e resiliente a falhas de rede.
+
+**João Victor Viana de Sousa — Especialista em Infraestrutura & Documentação**
+Responsável pela configuração da infraestrutura de fog e cloud (Docker, Mosquitto, Node-RED, InfluxDB, Grafana) e pela documentação técnica completa do projeto. Coordena a organização do repositório, os relatórios e a rastreabilidade das decisões arquiteturais tomadas ao longo da fase.
+
+---
+
+## 👩‍🏫 Professores
+
+**Tutor:** Caique Nonato da Silva Bezerra
+**Coordenador:** Andre Godoi Chiovato
+
+---
+
+## 📜 Licença
+
+Projeto desenvolvido exclusivamente para fins acadêmicos no contexto da **Fase 3 do Projeto CardioIA — FIAP, curso de Inteligência Artificial**.
+
+O uso de dados reais de pacientes não faz parte do escopo desta entrega. Todos os sinais vitais são simulados no ambiente Wokwi, sem vínculo com indivíduos reais ou dispositivos médicos certificados.
+
+---
+
+<p align="center">
+  Desenvolvido para fins acadêmicos — FIAP, curso de Inteligência Artificial<br>
+  <strong>Projeto CardioIA · Fase 3 · 2026</strong>
+</p>
