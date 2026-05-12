@@ -1,5 +1,9 @@
 # FIAP — Faculdade de Informática e Administração Paulista
 
+<p align="center">
+  <img src="assets/logo-fiap.png" alt="FIAP Logo" width="40%">
+</p>
+
 <h1 align="center">💓 CardioIA Conectada</h1>
 <h3 align="center">Monitoramento Contínuo de Sinais Vitais com IoT, Edge Computing e Visualização em Nuvem</h3>
 
