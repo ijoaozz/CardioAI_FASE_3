@@ -258,7 +258,7 @@ CardioIA/
 ### Simulação do circuito
 
 <p align="center">
-  <img src="Parte_1/assets/simulacao.png" alt="Circuito ESP32 com DHT22 e PIR no Wokwi" width="85%">
+  <img src="Parte_1/assets/simulação.png" alt="Circuito ESP32 com DHT22 e PIR no Wokwi" width="85%">
 </p>
 
 ### Payload JSON gerado
