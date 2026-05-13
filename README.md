@@ -478,6 +478,28 @@ const char* mqtt_server = "SEU_IP_AQUI";
 
 ---
 
+## ⚠️ Limitações e Trabalhos Futuros
+
+### Limitações Identificadas
+
+- **Ambiente simulado (Wokwi):** ausência de persistência SPIFFS, sem conectividade Wi-Fi real e sem latência de rede. O comportamento do firmware em hardware físico pode divergir em aspectos de temporização e confiabilidade.
+- **Sensor de temperatura ambiente:** o DHT22 mede temperatura do ar, não corporal. Substituição por sensor de contato é necessária para aplicação clínica real.
+- **Simulação de BPM por botão:** não captura variabilidade de frequência cardíaca (HRV) nem eventos arrítmicos como fibrilão atrial ou extras-sístoles.
+- **Segurança da comunicação:** a comunicação MQTT não utiliza TLS/mTLS nem autenticação no broker. Em ambiente de produção com dados de saúde, isso seria inaceitável do ponto de vista regulatório (LGPD, HIPAA).
+- **Capacidade de buffer limitada:** 100 segundos de cobertura offline são insuficientes para falhas de rede prolongadas em ambiente hospitalar real.
+- **Limiares de alerta fixos:** os valores de 38°C e 120 BPM são parâmetros genéricos; em produção, deveriam ser configuráveis por perfil de paciente.
+
+### Trabalhos Futuros
+
+- **Integração com hardware físico:** validação do firmware em ESP32 DevKit com sensores reais e rede Wi-Fi de produção.
+- **Sensor de ECG real:** substituição do botão pelo módulo AD8232, permitindo análise de intervalo R-R e detecção de arritmias.
+- **Segurança end-to-end:** implementação de TLS no broker Mosquitto, autenticação por certificado cliente e criptografia dos dados em repouso no InfluxDB.
+- **Buffer persistente:** armazenamento em SPIFFS ou cartão microSD para suportar horas de operação offline.
+- **Parametrização clínica:** painel de configuração de limiares de alerta por paciente, com integração a prontuário eletrônico.
+- **Notificações push:** integração do Node-RED com serviço de mensageria (Telegram Bot, PagerDuty) para alertas fora do dashboard.
+
+---
+
 ## 👨‍🎓 Integrantes do Grupo
 
 | Nome | RM | Papel |
@@ -507,6 +529,20 @@ Responsável pela configuração da infraestrutura de fog e cloud (Docker, Mosqu
 
 **Tutor:** Caique Nonato da Silva Bezerra
 **Coordenador:** Andre Godoi Chiovato
+
+---
+
+## 📚 Referências
+
+- BANKS, A.; GUPTA, R. *MQTT Version 3.1.1*. OASIS Standard, 2014. Disponível em: https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
+- ESPRESSIF SYSTEMS. *ESP32 Technical Reference Manual*. Versão 5.1. Shangai: Espressif, 2023. Disponível em: https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf
+- INFLUXDATA. *InfluxDB Documentation – Time Series Database*. 2024. Disponível em: https://docs.influxdata.com
+- GRAFANA LABS. *Grafana Documentation – Open Source Analytics & Monitoring*. 2024. Disponível em: https://grafana.com/docs
+- NODE-RED. *Node-RED Documentation – Flow-based Programming for the Internet of Things*. 2024. Disponível em: https://nodered.org/docs
+- ECLIPSE FOUNDATION. *Eclipse Mosquitto – An Open Source MQTT Broker*. 2024. Disponível em: https://mosquitto.org
+- BENETTI, G. et al. IoT-based Patient Monitoring Systems: A Systematic Review. *Journal of Medical Internet Research*, v. 25, n. 1, 2023.
+- BRASIL. Lei nº 13.709, de 14 de agosto de 2018. *Lei Geral de Proteção de Dados Pessoais (LGPD)*. Diário Oficial da União, Brasília, 2018.
+- WOKWI. *Wokwi – Online ESP32 and Arduino Simulator*. 2024. Disponível em: https://wokwi.com
 
 ---
 
