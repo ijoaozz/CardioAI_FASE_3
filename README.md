@@ -239,6 +239,9 @@ CardioIA/
 │   ├── platformio.ini
 │   └── wokwi.toml
 │
+├── assets/
+│   ├── logo-fiap.png
+│
 ├── relatorio_cardioIA_fase3.pdf
 ├── README.md
 └── .gitignore
