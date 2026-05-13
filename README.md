@@ -239,7 +239,7 @@ CardioIA/
 │   ├── platformio.ini
 │   └── wokwi.toml
 │
-├── relatorio_cardioIA_fase3.docx
+├── relatorio_cardioIA_fase3.pdf
 ├── README.md
 └── .gitignore
 ```
