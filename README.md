@@ -240,7 +240,7 @@ CardioIA/
 │   └── wokwi.toml
 │
 ├── assets/
-│   ├── logo-fiap.png
+│   └── logo-fiap.png
 │
 ├── relatorio_cardioIA_fase3.pdf
 ├── README.md
